@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: dockerized-app-service
+  namespace: docker-app
+
+spec:
+  selector:
+    app: dockerized-app
+
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+
+  type: LoadBalancer
