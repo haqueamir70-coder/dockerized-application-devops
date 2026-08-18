@@ -3,6 +3,10 @@
 Enterprise-level containerized application deployment using Docker, GitHub Actions, Docker Hub, and Kubernetes.
 
 ---
+![Docker](https://img.shields.io/badge/Docker-Containerized-blue)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-Ready-blue)
+![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI/CD-green)
+![License](https://img.shields.io/badge/License-MIT-yellow)
 
 # 📌 Project Overview
 
