@@ -51,13 +51,13 @@ Docker Image:
 Application files are copied into:
 
 ---
-
 ## Build Docker Image
 
 ```bash
 docker build -t docker-devops-app .
 docker run -p 80:80 docker-devops-app
 http://localhost
+
 
 amiruldevops/dockerized-application-devops
 
@@ -71,42 +71,3 @@ Docker Push
       |
       ↓
 Docker Hub Registry
-
-
-Code Commit
-      |
-      ↓
-GitHub Actions Trigger
-      |
-      ↓
-Build Docker Image
-      |
-      ↓
-Push Image
-      |
-      ↓
-Ready For Deployment
-
-kubernetes/
-
-
-
-Developer
-    |
-    ↓
-Push Code To GitHub
-    |
-    ↓
-GitHub Actions Runs
-    |
-    ↓
-Docker Image Created
-    |
-    ↓
-Image Uploaded To Docker Hub
-    |
-    ↓
-Kubernetes Pulls Image
-    |
-    ↓
-Application Deployed
