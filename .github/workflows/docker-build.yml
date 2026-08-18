@@ -1,0 +1,27 @@
+name: Docker Build CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  docker-build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+
+    - name: Build Docker Image
+      run: |
+        docker build -t docker-devops-app .
+
+
+    - name: Test Docker Image
+      run: |
+        docker images
