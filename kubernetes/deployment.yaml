@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: dockerized-app
+  namespace: docker-app
+
+spec:
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: dockerized-app
+
+  template:
+    metadata:
+      labels:
+        app: dockerized-app
+
+    spec:
+      containers:
+        - name: dockerized-app
+          image: amiruldevops/dockerized-application-devops:latest
+
+          ports:
+            - containerPort: 80
