@@ -6,22 +6,30 @@ on:
       - main
 
 jobs:
-
   docker-build:
 
     runs-on: ubuntu-latest
 
     steps:
 
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
+      - name: Build Docker Image
+        run: |
+          docker build -t docker-devops-app .
 
-    - name: Build Docker Image
-      run: |
-        docker build -t docker-devops-app .
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Push Docker Image
+        run: |
+          docker tag docker-devops-app amiruldevops/dockerized-application-devops:latest
+          docker push amiruldevops/dockerized-application-devops:latest
 
-    - name: Test Docker Image
-      run: |
-        docker images
+      - name: Test Docker Image
+        run: |
+          docker images
