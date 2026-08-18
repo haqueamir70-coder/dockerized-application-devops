@@ -46,9 +46,9 @@ The project includes:
 
 The application is packaged inside an Nginx container.
 
-Docker image:
+Docker Image:
 
-The application files are copied into the container:
+Application files are copied into:
 
 ---
 
@@ -58,7 +58,9 @@ The application files are copied into the container:
 docker build -t docker-devops-app .
 docker run -p 80:80 docker-devops-app
 http://localhost
+
 amiruldevops/dockerized-application-devops
+
 Docker Build
       |
       ↓
@@ -69,6 +71,8 @@ Docker Push
       |
       ↓
 Docker Hub Registry
+
+
 Code Commit
       |
       ↓
@@ -82,13 +86,10 @@ Push Image
       |
       ↓
 Ready For Deployment
+
 kubernetes/
-namespace.yaml
-docker-app
-deployment.yaml
-amiruldevops/dockerized-application-devops:latest
-80
-service.yaml
+
+
 
 Developer
     |
@@ -109,9 +110,3 @@ Kubernetes Pulls Image
     |
     ↓
 Application Deployed
-https://github.com/haqueamir70-coder
-
-
-Ye README ab tumhare GitHub portfolio ke liye proper DevOps engineer level ka lagega. 🔥
-
-Next step hum **Kubernetes CI/CD deployment workflow** add karenge. 🚀
