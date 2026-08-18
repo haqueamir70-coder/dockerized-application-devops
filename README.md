@@ -47,27 +47,41 @@ The project includes:
 The application is packaged inside an Nginx container.
 
 Docker Image:
+```dockerfile
+FROM nginx:latest
 
+COPY app /usr/share/nginx/html
+
+EXPOSE 80
+```
 Application files are copied into:
 
 ---
-## Build Docker Image
-
-```bash
-docker build -t docker-devops-app .
-docker run -p 80:80 docker-devops-app
-http://localhost
-
-
-amiruldevops/dockerized-application-devops
-
+```text
 Docker Build
       |
-      ↓
+      v
 Docker Login
       |
-      ↓
+      v
 Docker Push
       |
-      ↓
+      v
 Docker Hub Registry
+```
+
+```text
+Code Commit
+      |
+      v
+GitHub Actions Trigger
+      |
+      v
+Build Docker Image
+      |
+      v
+Push Image
+      |
+      v
+Ready For Deployment
+```
