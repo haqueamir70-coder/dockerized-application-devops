@@ -1,3 +1,30 @@
+<div align="center">
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0F172A,50:2563EB,100:06B6D4&height=190&section=header&text=Dockerized+Application+DevOps&fontSize=34&fontColor=ffffff&animation=fadeIn" alt="Container delivery workflow banner" width="100%" />
+
+<img src="https://readme-typing-svg.demolab.com/?font=Fira+Code&weight=600&size=17&pause=1200&color=00C7FF&center=true&vCenter=true&width=900&height=40&lines=Docker+%E2%80%A2+GitHub+Actions+%E2%80%A2+Container+Security+%E2%80%A2+Kubernetes" alt="Animated project tagline" />
+
+[![Terraform](https://img.shields.io/badge/Terraform-IaC-7B42BC?style=for-the-badge&logo=terraform&logoColor=white)](https://developer.hashicorp.com/terraform)
+[![Azure](https://img.shields.io/badge/Microsoft-Azure-0078D4?style=for-the-badge&logo=microsoftazure&logoColor=white)](https://azure.microsoft.com/)
+[![Portfolio](https://img.shields.io/badge/Portfolio-MD%20Amirul-181717?style=for-the-badge&logo=github)](https://github.com/haqueamir70-coder)
+
+</div>
+
+> **Portfolio project:** implementation status and limitations are documented below. The diagram describes the intended workflow/architecture and is not proof of a successful production deployment.
+
+## 🗺️ Architecture at a Glance
+
+```mermaid
+flowchart TD
+  A[Application Source] --> B[Build Container]
+  B --> C[Scan Image]
+  C --> D[Publish Image]
+  D --> E[Deploy to Kubernetes]
+  E --> F[Health Checks and Observability]
+```
+
+---
+
 # Dockerized Application DevOps
 
 A portfolio project demonstrating a simple web application packaged with Docker, with repository configuration for a GitHub Actions image workflow and Kubernetes manifests.
