@@ -1,11 +1,11 @@
-# Use official Nginx image
-FROM nginx:latest
+# Unprivileged Nginx listens on 8080 and runs without root privileges.
+FROM nginxinc/nginx-unprivileged:1.27-alpine
 
-# Copy application files
-COPY app /usr/share/nginx/html
+COPY --chown=nginx:nginx app/ /usr/share/nginx/html/
 
-# Expose web port
-EXPOSE 80
+EXPOSE 8080
 
-# Start Nginx server
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1
+
 CMD ["nginx", "-g", "daemon off;"]
