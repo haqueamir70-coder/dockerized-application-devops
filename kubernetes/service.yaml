@@ -1,17 +1,16 @@
 apiVersion: v1
 kind: Service
-
 metadata:
   name: dockerized-app-service
   namespace: docker-app
-
+  labels:
+    app.kubernetes.io/name: dockerized-app
 spec:
+  type: ClusterIP
   selector:
     app: dockerized-app
-
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: 80
-      targetPort: 80
-
-  type: LoadBalancer
+      targetPort: http
