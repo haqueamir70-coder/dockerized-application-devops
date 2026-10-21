@@ -1,34 +1,40 @@
-name: Kubernetes Deploy CI/CD
+name: Kubernetes Manifest Validation
 
 on:
+  pull_request:
+    paths:
+      - 'kubernetes/**'
+      - '.github/workflows/kubernetes-deploy.yml'
   push:
-    branches:
-      - main
+    branches: [main]
+    paths:
+      - 'kubernetes/**'
+      - '.github/workflows/kubernetes-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-
-  deploy:
-    name: Deploy to Kubernetes
+  validate-manifests:
+    name: Validate Kubernetes manifests
     runs-on: ubuntu-latest
-
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
 
+      - name: Validate manifest YAML structure
+        run: |
+          set -euo pipefail
+          for manifest in kubernetes/namespace.yaml kubernetes/deployment.yaml kubernetes/service.yaml; do
+            test -s "$manifest"
+            kubectl apply --dry-run=client --validate=false -f "$manifest"
+          done
 
-    - name: Setup Kubectl
-      uses: azure/setup-kubectl@v4
-
-
-    - name: Configure Kubernetes
-      run: |
-        kubectl apply -f kubernetes/namespace.yaml
-        kubectl apply -f kubernetes/deployment.yaml
-        kubectl apply -f kubernetes/service.yaml
-
-
-    - name: Verify Deployment
-      run: |
-        kubectl get pods -n docker-app
-        kubectl get service -n docker-app
+      - name: Show manifests being validated
+        run: |
+          echo "Validated Kubernetes manifests without deploying to a cluster."
+          echo "A real deployment requires a configured Kubernetes context and credentials."
