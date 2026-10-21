@@ -105,17 +105,13 @@ Inspect `.github/workflows/` to confirm the current trigger, image tags, registr
 
 ## Kubernetes
 
-Review the manifests before applying them. Validate syntax and context, and deploy only to a test cluster first. A Kubernetes `LoadBalancer` Service may create billable cloud resources, depending on the cluster provider.
+The manifests use a non-root Nginx container, read-only root filesystem, dropped Linux capabilities, resource limits, health probes, and an internal `ClusterIP` Service by default.
 
-Typical inspection commands:
+- **Manifest validation:** `.github/workflows/kubernetes-deploy.yml` checks YAML/basic structure without requiring cluster credentials.
+- **Manual cluster deployment:** `.github/workflows/kubernetes-manual-deploy.yml` requires a configured GitHub environment secret named `KUBE_CONFIG_DATA` and explicit confirmation. It performs server-side dry-run, applies the manifests, and waits for rollout.
+- **Setup instructions:** see [docs/kubernetes-deployment.md](docs/kubernetes-deployment.md).
 
-```bash
-kubectl config current-context
-kubectl apply --dry-run=client -f kubernetes/
-kubectl diff -f kubernetes/
-```
-
-Apply only after confirming the selected cluster and namespace. The commands above assume the manifest directory exists and contains valid resources.
+A real deployment is not claimed until a test cluster and least-privilege credentials are configured and a manual deployment run succeeds. The default ClusterIP Service avoids creating a public cloud load balancer automatically.
 
 ## Production-readiness checklist
 
