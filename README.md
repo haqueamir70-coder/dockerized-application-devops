@@ -1,260 +1,105 @@
-# 🚀 Dockerized Application DevOps
+# Dockerized Application DevOps
 
-Enterprise-level containerized application deployment using Docker, GitHub Actions, Docker Hub, and Kubernetes.
+A portfolio project demonstrating a simple web application packaged with Docker, with repository configuration for a GitHub Actions image workflow and Kubernetes manifests.
 
----
-![Docker](https://img.shields.io/badge/Docker-Containerized-blue)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-Ready-blue)
-![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI/CD-green)
-![License](https://img.shields.io/badge/License-MIT-yellow)
+## What this repository contains
 
-# 📌 Project Overview
+- A sample static web application under `app/`
+- A Dockerfile based on Nginx
+- Docker Compose configuration for local execution
+- GitHub Actions workflow files under `.github/workflows/`
+- Kubernetes deployment configuration (inspect `kubernetes/` for the current manifests)
 
-This project demonstrates a complete DevOps workflow for deploying a containerized web application.
+The README describes the intended workflow; verify the actual workflow run and cluster deployment before treating a stage as operationally proven.
 
-The project includes:
-
-- Application containerization using Docker
-- Docker image management with Docker Hub
-- Automated CI pipeline using GitHub Actions
-- Kubernetes deployment and service configuration
-- Cloud-native application architecture
-
----
-
-# 🏗️ Application Architecture
+## Architecture
 
 ```text
-Developer
+Code change
     |
     v
-GitHub Repository
+GitHub repository
     |
     v
-GitHub Actions CI/CD
+GitHub Actions workflow
     |
     v
-Docker Build
+Build container image
     |
     v
-Docker Hub Registry
+Container registry
     |
     v
-Kubernetes Cluster
-    |
-    v
-Running Application
+Kubernetes deployment (when configured)
 ```
 
----
+## Technology stack
 
-# 🛠️ Technologies Used
+- Docker and Docker Compose
+- Nginx
+- GitHub Actions
+- Kubernetes YAML
+- Git and GitHub
 
-| Technology | Purpose |
-|------------|---------|
-| Docker | Application Containerization |
-| Docker Hub | Container Image Registry |
-| GitHub Actions | CI/CD Automation |
-| Kubernetes | Container Orchestration |
-| YAML | Infrastructure Configuration |
-| Nginx | Web Server |
-| GitHub | Source Code Management |
+## Run locally
 
----
-
-# 📂 Project Structure
-
-```text
-dockerized-application-devops
-
-│
-├── app
-│   └── index.html
-│
-├── kubernetes
-│   ├── namespace.yaml
-│   ├── deployment.yaml
-│   └── service.yaml
-│
-├── .github
-│   └── workflows
-│       └── docker-build.yml
-│
-├── Dockerfile
-├── docker-compose.yml
-├── README.md
-└── LICENSE
-```
-
----
-
-# 🐳 Docker Implementation
-
-## Dockerfile
-
-The application is packaged inside an Nginx container.
-
-```dockerfile
-FROM nginx:latest
-
-COPY app /usr/share/nginx/html
-
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
-```
-
----
-
-# Build Docker Image
+Build the image from the repository root:
 
 ```bash
-docker build -t docker-devops-app .
+docker build -t dockerized-application-devops:local .
 ```
 
----
-
-# Run Docker Container
+Run it on port 8080:
 
 ```bash
-docker run -p 80:80 docker-devops-app
+docker run --rm -p 8080:80 dockerized-application-devops:local
 ```
 
-Application URL:
+Open `http://localhost:8080`.
 
-```
-http://localhost
-```
+If Docker Compose is configured for your environment, you can also inspect and run it with:
 
----
-
-# Docker Hub Image
-
-Docker image is pushed to Docker Hub:
-
-```
-amiruldevops/dockerized-application-devops
+```bash
+docker compose config
+docker compose up --build
 ```
 
----
+Stop the Compose application with `Ctrl+C`, then run `docker compose down` if needed.
 
-# 🐳 Docker Workflow
+## CI/CD workflow
 
-```text
-Docker Build
-      |
-      v
-Docker Login
-      |
-      v
-Docker Push
-      |
-      v
-Docker Hub Registry
+Inspect `.github/workflows/` to confirm the current trigger, image tags, registry login, and push behavior. For registry publishing:
+
+- Store credentials only in GitHub Actions secrets, or use a supported short-lived identity mechanism.
+- Never hard-code credentials in YAML or application files.
+- Prefer immutable image tags (for example, a commit SHA) in addition to any human-readable tag.
+- Pin third-party Actions to reviewed versions or commit SHAs.
+- Configure least-privilege permissions and avoid publishing images from untrusted pull requests.
+
+## Kubernetes
+
+Review the manifests before applying them. Validate syntax and context, and deploy only to a test cluster first. A Kubernetes `LoadBalancer` Service may create billable cloud resources, depending on the cluster provider.
+
+Typical inspection commands:
+
+```bash
+kubectl config current-context
+kubectl apply --dry-run=client -f kubernetes/
+kubectl diff -f kubernetes/
 ```
 
----
+Apply only after confirming the selected cluster and namespace. The commands above assume the manifest directory exists and contains valid resources.
 
-# ⚙️ CI/CD Pipeline
+## Production-readiness checklist
 
-GitHub Actions automatically performs:
+- [ ] Use a pinned base image version and scan the resulting image.
+- [ ] Run the container as a non-root user where feasible.
+- [ ] Add health checks, resource requests/limits, and security context to Kubernetes manifests.
+- [ ] Add automated tests and workflow status checks.
+- [ ] Use protected deployment environments and least-privilege credentials.
+- [ ] Document rollback, image retention, monitoring, and cleanup.
+- [ ] Confirm successful CI runs and a real test deployment before claiming production readiness.
 
-✅ Checkout Repository  
-✅ Build Docker Image  
-✅ Login to Docker Hub  
-✅ Push Image to Docker Hub  
+## Author
 
-Workflow:
-
-```text
-Code Commit
-      |
-      v
-GitHub Actions Trigger
-      |
-      v
-Build Docker Image
-      |
-      v
-Push Image
-      |
-      v
-Ready For Deployment
-```
-
----
-
-# ☸️ Kubernetes Deployment
-
-Kubernetes configuration files:
-
-```text
-kubernetes/
-
-├── namespace.yaml
-├── deployment.yaml
-└── service.yaml
-```
-
-## Namespace
-
-Creates an isolated Kubernetes environment.
-
-## Deployment
-
-Features:
-
-- 3 replicas
-- Docker Hub image deployment
-- Container port 80
-
-## Service
-
-Features:
-
-- LoadBalancer service
-- External application access
-
----
-
-# 🚀 Deployment Flow
-
-```text
-Developer
-    |
-    v
-Push Code To GitHub
-    |
-    v
-GitHub Actions Runs
-    |
-    v
-Docker Image Created
-    |
-    v
-Image Uploaded To Docker Hub
-    |
-    v
-Kubernetes Pulls Image
-    |
-    v
-Application Deployed
-```
-
----
-
-# 🔮 Future Improvements
-
-- Kubernetes CI/CD deployment automation
-- Helm Charts
-- Monitoring with Prometheus & Grafana
-- Infrastructure as Code using Terraform
-- Cloud deployment on AWS/Azure
-
----
-
-# 👨‍💻 Author
-
-**Amirul DevOps**
-
-DevOps Engineer Portfolio Project
+MD Amirul Haque · [GitHub profile](https://github.com/haqueamir70-coder) · [LinkedIn](https://www.linkedin.com/in/md-amirul-haque/)
