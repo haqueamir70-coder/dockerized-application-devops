@@ -17,24 +17,49 @@ permissions:
 
 jobs:
   validate-manifests:
-    name: Validate Kubernetes manifests
+    name: Validate Kubernetes manifest YAML
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
-      - name: Validate manifest YAML structure
+      - name: Parse and validate manifest structure
         run: |
           set -euo pipefail
-          for manifest in kubernetes/namespace.yaml kubernetes/deployment.yaml kubernetes/service.yaml; do
-            test -s "$manifest"
-            kubectl apply --dry-run=client --validate=false -f "$manifest"
-          done
+          python -m pip install --disable-pip-version-check PyYAML
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
 
-      - name: Show manifests being validated
+          paths = [
+              Path("kubernetes/namespace.yaml"),
+              Path("kubernetes/deployment.yaml"),
+              Path("kubernetes/service.yaml"),
+          ]
+
+          for path in paths:
+              if not path.is_file() or path.stat().st_size == 0:
+                  raise SystemExit(f"Missing or empty manifest: {path}")
+              with path.open(encoding="utf-8") as stream:
+                  document = yaml.safe_load(stream)
+              if not isinstance(document, dict):
+                  raise SystemExit(f"{path}: expected a YAML object")
+              for field in ("apiVersion", "kind", "metadata"):
+                  if field not in document:
+                      raise SystemExit(f"{path}: missing required top-level field '{field}'")
+              if not isinstance(document["metadata"], dict) or not document["metadata"].get("name"):
+                  raise SystemExit(f"{path}: metadata.name is required")
+              print(f"PASS: {path} ({document['kind']}/{document['metadata']['name']})")
+
+          print("All Kubernetes manifests passed YAML and basic structure checks.")
+          PY
+
+      - name: Explain deployment prerequisites
         run: |
-          echo "Validated Kubernetes manifests without deploying to a cluster."
-          echo "A real deployment requires a configured Kubernetes context and credentials."
+          echo "This workflow validates manifest YAML and basic structure only."
+          echo "It does not deploy to a cluster; live deployment requires a configured Kubernetes context and credentials."
