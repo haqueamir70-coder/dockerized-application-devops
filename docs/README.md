@@ -74,3 +74,7 @@ Use Kubernetes Secrets integrated with a secret manager/CSI or external secrets 
 ### 10. Answer
 
 Inspect pod events, logs, exit codes, resource usage, probe failures, image pull events and service endpoints; correlate with node pressure and recent deployments.
+
+## Complete zero-to-hero guide
+
+See [ZERO-TO-HERO.md](./ZERO-TO-HERO.md) for the business scenario, architecture walkthrough, tool-by-tool explanations, implementation sequence, practical commands, troubleshooting playbook and additional scenario-based interview questions with answers.
