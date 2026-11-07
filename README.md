@@ -1,133 +1,126 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0F172A,50:2563EB,100:06B6D4&height=190&section=header&text=Dockerized+Application+DevOps&fontSize=34&fontColor=ffffff&animation=fadeIn" alt="Container delivery workflow banner" width="100%" />
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0B1020,45:1D4ED8,100:06B6D4&height=220&section=header&text=Container%20Delivery%20Lab&fontSize=36&fontColor=ffffff&animation=fadeIn" width="100%" alt="Dockerized Application DevOps"/>
 
-<img src="https://readme-typing-svg.demolab.com/?font=Fira+Code&weight=600&size=17&pause=1200&color=00C7FF&center=true&vCenter=true&width=900&height=40&lines=Docker+%E2%80%A2+GitHub+Actions+%E2%80%A2+Container+Security+%E2%80%A2+Kubernetes" alt="Animated project tagline" />
+### Build once · Scan the artifact · Deploy deliberately
 
-[![Terraform](https://img.shields.io/badge/Terraform-IaC-7B42BC?style=for-the-badge&logo=terraform&logoColor=white)](https://developer.hashicorp.com/terraform)
-[![Azure](https://img.shields.io/badge/Microsoft-Azure-0078D4?style=for-the-badge&logo=microsoftazure&logoColor=white)](https://azure.microsoft.com/)
-[![Portfolio](https://img.shields.io/badge/Portfolio-MD%20Amirul-181717?style=for-the-badge&logo=github)](https://github.com/haqueamir70-coder)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/)
+[![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)](https://nginx.org/)
+[![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)](https://docs.github.com/actions)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)](https://kubernetes.io/)
+
+**A practical container delivery example: package a web application, run it locally, validate the image workflow and deploy to Kubernetes only through an explicitly configured path.**
+
+[Architecture](#-delivery-architecture) · [Run locally](#-run-locally) · [Kubernetes](#-kubernetes-deployment) · [Security](#-container-security)
 
 </div>
 
-> **Portfolio project:** implementation status and limitations are documented below. The diagram describes the intended workflow/architecture and is not proof of a successful production deployment.
+## Project overview
 
-## 🗺️ Architecture at a Glance
+This repository demonstrates the path from application source to a container image and a Kubernetes workload. It is intentionally small enough to run locally while exposing the engineering controls that matter in a delivery pipeline.
+
+## Delivery architecture
 
 ```mermaid
-flowchart TD
-  A[Application Source] --> B[Build Container]
-  B --> C[Scan Image]
-  C --> D[Publish Image]
-  D --> E[Deploy to Kubernetes]
-  E --> F[Health Checks and Observability]
+flowchart LR
+  Source[Application source] --> Build[Docker build]
+  Build --> Image[Versioned image]
+  Image --> Local[Local container / Compose]
+  Image --> CI[GitHub Actions]
+  CI --> Checks[Build and validation]
+  Checks --> Registry[Registry publish when configured]
+  Registry --> K8s[Kubernetes manifests]
+  K8s --> Health[Probes and rollout status]
 ```
 
----
+## What is in this repository
 
-# Dockerized Application DevOps
-
-A portfolio project demonstrating a simple web application packaged with Docker, with repository configuration for a GitHub Actions image workflow and Kubernetes manifests.
-
-## What this repository contains
-
-- A sample static web application under `app/`
-- A Dockerfile based on Nginx
-- Docker Compose configuration for local execution
-- GitHub Actions workflow files under `.github/workflows/`
-- Kubernetes deployment configuration (inspect `kubernetes/` for the current manifests)
-
-The README describes the intended workflow; verify the actual workflow run and cluster deployment before treating a stage as operationally proven.
-
-## Architecture
-
-```text
-Code change
-    |
-    v
-GitHub repository
-    |
-    v
-GitHub Actions workflow
-    |
-    v
-Build container image
-    |
-    v
-Container registry
-    |
-    v
-Kubernetes deployment (when configured)
-```
-
-## Technology stack
-
-- Docker and Docker Compose
-- Nginx
-- GitHub Actions
-- Kubernetes YAML
-- Git and GitHub
+| Path | Purpose |
+|---|---|
+| `app/` | Static web application |
+| `Dockerfile` | Nginx-based container image |
+| Compose file | Local multi-container workflow, if configured |
+| `.github/workflows/` | Build, validation and deployment workflows |
+| `kubernetes/` | Kubernetes workload and service manifests |
+| `docs/kubernetes-deployment.md` | Manual cluster deployment guide |
 
 ## Run locally
 
-Build the image from the repository root:
+### Requirements
+
+- Docker Engine with Docker CLI.
+- Docker Compose plugin if you want to use Compose.
+- Git to clone the repository.
+
+### Build
 
 ```bash
 docker build -t dockerized-application-devops:local .
 ```
 
-Run it on port 8080:
+### Run
 
 ```bash
-docker run --rm -p 8080:80 dockerized-application-devops:local
+docker run --rm --name devops-web -p 8080:80 dockerized-application-devops:local
 ```
 
-Open `http://localhost:8080`.
+Open [http://localhost:8080](http://localhost:8080). Stop the container with `Ctrl+C`.
 
-If Docker Compose is configured for your environment, you can also inspect and run it with:
+If the Compose file is present and configured:
 
 ```bash
 docker compose config
 docker compose up --build
 ```
 
-Stop the Compose application with `Ctrl+C`, then run `docker compose down` if needed.
+Stop the stack with:
 
-## CI/CD workflow
+```bash
+docker compose down
+```
 
-Inspect `.github/workflows/` to confirm the current trigger, image tags, registry login, and push behavior. For registry publishing:
+## Kubernetes deployment
 
-- Store credentials only in GitHub Actions secrets, or use a supported short-lived identity mechanism.
-- Never hard-code credentials in YAML or application files.
-- Prefer immutable image tags (for example, a commit SHA) in addition to any human-readable tag.
-- Pin third-party Actions to reviewed versions or commit SHAs.
-- Configure least-privilege permissions and avoid publishing images from untrusted pull requests.
+The manifests are designed around a hardened baseline: non-root execution, read-only root filesystem, dropped Linux capabilities, resource controls, health probes and an internal `ClusterIP` Service.
 
-## Kubernetes
+- The manifest-validation workflow checks YAML/basic structure without needing cluster credentials.
+- The manual deployment workflow requires a configured GitHub environment secret named `KUBE_CONFIG_DATA` and explicit confirmation.
+- The workflow performs a server-side dry-run, applies manifests and waits for rollout.
+- The deployment guide is [docs/kubernetes-deployment.md](docs/kubernetes-deployment.md).
 
-The manifests use a non-root Nginx container, read-only root filesystem, dropped Linux capabilities, resource limits, health probes, and an internal `ClusterIP` Service by default.
+A live cluster deployment is **not** claimed until a test cluster is configured and a manual workflow run succeeds. The default `ClusterIP` service does not create a public cloud load balancer.
 
-- **Manifest validation:** `.github/workflows/kubernetes-deploy.yml` checks YAML/basic structure without requiring cluster credentials.
-- **Manual cluster deployment:** `.github/workflows/kubernetes-manual-deploy.yml` requires a configured GitHub environment secret named `KUBE_CONFIG_DATA` and explicit confirmation. It performs server-side dry-run, applies the manifests, and waits for rollout.
-- **Setup instructions:** see [docs/kubernetes-deployment.md](docs/kubernetes-deployment.md).
+## Container security
 
-A real deployment is not claimed until a test cluster and least-privilege credentials are configured and a manual deployment run succeeds. The default ClusterIP Service avoids creating a public cloud load balancer automatically.
+- Pin the Nginx base image to a reviewed version or digest before a controlled release.
+- Scan the built image and define a severity policy before publishing.
+- Use immutable commit-SHA tags; do not treat mutable tags as artifact identity.
+- Keep registry and cluster credentials in protected GitHub environments or use short-lived identity where supported.
+- Do not expose deployment secrets to untrusted pull-request workflows.
+- Review container user, filesystem permissions, capabilities and resource limits whenever the base image changes.
 
-## Production-readiness checklist
+## CI/CD verification
 
-- [ ] Use a pinned base image version and scan the resulting image.
-- [ ] Run the container as a non-root user where feasible.
-- [ ] Add health checks, resource requests/limits, and security context to Kubernetes manifests.
-- [ ] Add automated tests and workflow status checks.
-- [ ] Use protected deployment environments and least-privilege credentials.
-- [ ] Document rollback, image retention, monitoring, and cleanup.
-- [ ] Confirm successful CI runs and a real test deployment before claiming production readiness.
+Check the repository's [Actions history](../../actions) for current workflow runs. A successful image build proves that the image was built; it does not prove the image was deployed, exposed securely or observed in a live cluster.
 
-## Author
+## Next engineering steps
 
-MD Amirul Haque · [GitHub profile](https://github.com/haqueamir70-coder) · [LinkedIn](https://www.linkedin.com/in/md-amirul-haque/)
+- [ ] Pin base image by digest and enable image scanning.
+- [ ] Publish immutable artifacts to a registry using least-privilege credentials.
+- [ ] Add automated application smoke tests.
+- [ ] Validate Kubernetes manifests against a target cluster version.
+- [ ] Capture a genuine deployment screenshot and rollout evidence.
+- [ ] Add monitoring, alerting and a rollback runbook.
 
+## Documentation
 
-## Architecture and interview preparation
+- [Manual Kubernetes deployment](docs/kubernetes-deployment.md)
+- [Architecture and interview guide](docs/README.md)
+- [Zero-to-hero walkthrough](docs/ZERO-TO-HERO.md)
+- [Advanced interview scenarios](docs/ADVANCED-INTERVIEW-BANK.md)
 
-See the [architecture diagram and interview questions](docs/README.md) for the repository-specific design walkthrough and technical interview guide.
+## Maintainer
+
+**MD Amirul Haque** · [GitHub](https://github.com/haqueamir70-coder) · [LinkedIn](https://www.linkedin.com/in/md-amirul-haque/)
+
+<sub>Reproducible builds. Hardened workloads. Controlled releases.</sub>
